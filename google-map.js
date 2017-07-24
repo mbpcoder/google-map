@@ -80,8 +80,6 @@ var GoogleMap = function (options) {
                     onMarkerClick(map, marker, event, point)
                 });
             }
-
-
             markers[latitude + ',' + longitude] = marker;
             return marker;
         }
@@ -105,6 +103,11 @@ var GoogleMap = function (options) {
             longitude: longitude
         };
         map.setCenter(new google.maps.LatLng(mapCenter.latitude, mapCenter.longitude));
+    };
+
+    var setMapZoom = function (value) {
+        zoom = value;
+        map.setZoom(zoom);
     };
 
     var refresh = function () {
@@ -133,6 +136,7 @@ var GoogleMap = function (options) {
     this.setMapCenter = setMapCenter;
     this.refresh = refresh;
     this.resize = resize;
+    this.setMapZoom = setMapZoom;
     this.addMarker = addMarker;
     this.clearMarkers = clearMarkers;
 

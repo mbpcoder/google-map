@@ -64,7 +64,7 @@ var GoogleMap = function (options) {
     };
 
     var addMarker = function (latitude, longitude, title, icon) {
-        if (totalMarker > getMarkerCount() || totalMarker == -1) {
+        if (totalMarker > getMarkersCount() || totalMarker == -1) {
             var latLng = new google.maps.LatLng(latitude, longitude);
             var option = {
                 position: latLng,
@@ -111,6 +111,10 @@ var GoogleMap = function (options) {
         });
     };
 
+    var addPolygan = function () {
+
+    };
+
     var setMapCenter = function (latitude, longitude) {
         mapCenter = {
             latitude: latitude,
@@ -132,7 +136,7 @@ var GoogleMap = function (options) {
         google.maps.event.trigger(map, 'resize');
     };
 
-    var getMarkerCount = function () {
+    var getMarkersCount = function () {
         return Object.keys(markers).length;
     };
 
@@ -151,8 +155,9 @@ var GoogleMap = function (options) {
     this.resize = resize;
     this.setMapZoom = setMapZoom;
     this.addMarker = addMarker;
-    this.addInfoWindow = addInfoWindow;
     this.clearMarkers = clearMarkers;
+    this.getMarkersCount = getMarkersCount;
+    this.addInfoWindow = addInfoWindow;
 
     init();
 };

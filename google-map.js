@@ -17,10 +17,6 @@ var GoogleMap = function (options) {
     var zoom = options.zoom || 13;
     var zoomControl = (options.zoomControl == undefined) ? true : options.zoomControl;
 
-    var zoomControlOptions = {
-        style: google.maps.ZoomControlStyle.LARGE,
-        position: google.maps.ControlPosition.LEFT_CENTER
-    };
     var containerElement = options.containerElement || undefined;
     var scrollWheelZoom = (options.scrollWheelZoom == undefined) ? true : options.scrollWheelZoom;
     var markerIcon = options.markerIcon || undefined;
@@ -34,23 +30,36 @@ var GoogleMap = function (options) {
 
     // initial the map
     var init = function () {
-        var mapOptions = {
-            center: new google.maps.LatLng(mapCenter.latitude, mapCenter.longitude),
-            zoom: zoom,
-            zoomControl: zoomControl,
-            zoomControlOptions: zoomControlOptions,
-            scrollwheel: scrollWheelZoom
-        };
-        map = new google.maps.Map(containerElement, mapOptions);
+        if (googleIsAvailable()) {
+            var zoomControlOptions = {
+                style: google.maps.ZoomControlStyle.LARGE,
+                position: google.maps.ControlPosition.LEFT_CENTER
+            };
+            var mapOptions = {
+                center: new google.maps.LatLng(mapCenter.latitude, mapCenter.longitude),
+                zoom: zoom,
+                zoomControl: zoomControl,
+                zoomControlOptions: zoomControlOptions,
+                scrollwheel: scrollWheelZoom
+            };
+            map = new google.maps.Map(containerElement, mapOptions);
 
-        if (onMapClick) {
-            google.maps.event.addListener(map, 'click', function (event) {
-                var point = {
-                    'latitude': event.latLng.lat(),
-                    'longitude': event.latLng.lng(),
-                };
-                onMapClick(map, event, point);
-            });
+            if (onMapClick) {
+                google.maps.event.addListener(map, 'click', function (event) {
+                    var point = {
+                        'latitude': event.latLng.lat(),
+                        'longitude': event.latLng.lng(),
+                    };
+                    onMapClick(map, event, point);
+                });
+            }
+        } else {
+            console.log('google map is undefined');
+            if (containerElement.classList.length == 0) {
+                containerElement.className = 'offline';
+            } else {
+                containerElement.className = containerElement.className + ' offline';
+            }
         }
     };
 
@@ -93,8 +102,13 @@ var GoogleMap = function (options) {
         markers = {};
     };
 
-    var addInfoWindow = function () {
-
+    var addInfoWindow = function (marker, contect) {
+        var infoWindow = new google.maps.InfoWindow({
+            content: contect
+        });
+        google.maps.event.addListener(marker, 'click', function (event) {
+            infoWindow.open(map, marker);
+        });
     };
 
     var setMapCenter = function (latitude, longitude) {
@@ -122,7 +136,6 @@ var GoogleMap = function (options) {
         return Object.keys(markers).length;
     };
 
-
     var googleIsAvailable = function () {
         var result = false;
         if (typeof google !== "undefined" && typeof google !== undefined && typeof google.maps.LatLng === "function") {
@@ -138,6 +151,7 @@ var GoogleMap = function (options) {
     this.resize = resize;
     this.setMapZoom = setMapZoom;
     this.addMarker = addMarker;
+    this.addInfoWindow = addInfoWindow;
     this.clearMarkers = clearMarkers;
 
     init();

@@ -25,7 +25,8 @@
         totalMarker: 1,
         onMapClick: function (map, event, point) {
             googleMap.clearMarkers();
-            googleMap.addMarker(point.latitude, point.longitude);
+            var marker = googleMap.addMarker(point.latitude, point.longitude);
+            googleMap.addInfoWindow(marker, 'Hello<br/>New</br>Marker');
             console.log(point)
         },
         onMarkerClick: function (map, event, marker, point) {
@@ -33,7 +34,8 @@
         }
     });
     // default marker
-    googleMap.addMarker(36.318577999999995, 59.58842000000004);
+    var marker = googleMap.addMarker(36.318577999999995, 59.58842000000004);
+    googleMap.addInfoWindow(marker, 'Hello<br/>Default<br/>Marker');
 
     // set map zoom dynamically
     // googleMap.setMapZoom(15);

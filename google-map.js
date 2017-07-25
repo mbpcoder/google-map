@@ -123,6 +123,10 @@ var GoogleMap = function (options) {
         map.setCenter(new google.maps.LatLng(mapCenter.latitude, mapCenter.longitude));
     };
 
+    var getCurrentMapCenter = function () {
+        return map.getCenter();
+    };
+
     var setMapZoom = function (value) {
         zoom = value;
         map.setZoom(zoom);

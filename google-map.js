@@ -26,6 +26,7 @@ var GoogleMap = function (options) {
     // private variables
     var map = undefined;
     var markers = {};
+    var polygans = {};
     // private functions
 
     // initial the map
@@ -63,9 +64,12 @@ var GoogleMap = function (options) {
         }
     };
 
-    var addMarker = function (latitude, longitude, title, icon) {
+    var addMarker = function (latitude, longitude, key, title, icon) {
         if (totalMarker > getMarkersCount() || totalMarker == -1) {
             var latLng = new google.maps.LatLng(latitude, longitude);
+            if (!key) {
+                key = guid();
+            }
             var option = {
                 position: latLng,
                 map: map
@@ -89,7 +93,7 @@ var GoogleMap = function (options) {
                     onMarkerClick(map, marker, event, point)
                 });
             }
-            markers[latitude + ',' + longitude] = marker;
+            markers[key] = marker;
             return marker;
         }
         return false;
@@ -102,17 +106,66 @@ var GoogleMap = function (options) {
         markers = {};
     };
 
-    var addInfoWindow = function (marker, contect) {
+    var getMarkers = function () {
+        return markers;
+    };
+
+    var getMarkersPoint = function () {
+        var points = [];
+        for (var index in markers) {
+            var marker = markers[index];
+            var point = {
+                'latitude': marker.position.lat(),
+                'longitude': marker.position.lng()
+            };
+
+        }
+        return points;
+    };
+
+    var getMarkersCount = function () {
+        return Object.keys(markers).length;
+    };
+
+    var addInfoWindow = function (marker, content) {
         var infoWindow = new google.maps.InfoWindow({
-            content: contect
+            content: content
         });
         google.maps.event.addListener(marker, 'click', function (event) {
             infoWindow.open(map, marker);
         });
     };
 
-    var addPolygan = function () {
+    var addPolygon = function (points, key) {
+        key = '';
 
+        for (var index in points) {
+            var point = points[index];
+            points[index] = new google.maps.LatLng(points[index]['latitude'], points[index]['longitude']);
+            key = key + points[index]['latitude'] + '-' + points[index]['longitude'];
+        }
+
+        var polygan = new google.maps.Polygon({
+            path: points,
+            strokeColor: "#0000FF",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: "#0000FF",
+            fillOpacity: 0.4
+        });
+        polygan.setMap(map);
+        polygans[key] = polygans;
+    };
+
+    var clearPolygans = function () {
+        for (var key in polygans) {
+            polygans[key].setMap(null);
+        }
+        polygans = {};
+    };
+
+    var getPolygansCount = function () {
+        return Object.keys(polygans).length;
     };
 
     var setMapCenter = function (latitude, longitude) {
@@ -124,7 +177,11 @@ var GoogleMap = function (options) {
     };
 
     var getCurrentMapCenter = function () {
-        return map.getCenter();
+        var center = {
+            latitude: map.getCenter().lat(),
+            longitude: map.getCenter().lng()
+        };
+        return center;
     };
 
     var setMapZoom = function (value) {
@@ -140,10 +197,6 @@ var GoogleMap = function (options) {
         google.maps.event.trigger(map, 'resize');
     };
 
-    var getMarkersCount = function () {
-        return Object.keys(markers).length;
-    };
-
     var googleIsAvailable = function () {
         var result = false;
         if (typeof google !== "undefined" && typeof google !== undefined && typeof google.maps.LatLng === "function") {
@@ -152,16 +205,27 @@ var GoogleMap = function (options) {
         return result;
     };
 
+    var guid = function () {
+        return guidHelperV4() + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + guidHelperV4() + guidHelperV4();
+    }
+    var guidHelperV4 = function () {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+
     // public function
 
     this.setMapCenter = setMapCenter;
+    this.getCurrentMapCenter = getCurrentMapCenter;
     this.refresh = refresh;
     this.resize = resize;
     this.setMapZoom = setMapZoom;
     this.addMarker = addMarker;
     this.clearMarkers = clearMarkers;
+    this.getMarkers = getMarkers;
+    this.getMarkersPoint = getMarkersPoint;
     this.getMarkersCount = getMarkersCount;
     this.addInfoWindow = addInfoWindow;
+    this.addPolygon = addPolygon;
 
     init();
 };

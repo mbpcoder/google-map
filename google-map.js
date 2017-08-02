@@ -26,7 +26,8 @@ var GoogleMap = function (options) {
     // private variables
     var map = undefined;
     var markers = {};
-    var polygans = {};
+    var polygons = {};
+    var polylines = {};
     // private functions
 
     // initial the map
@@ -118,7 +119,7 @@ var GoogleMap = function (options) {
                 'latitude': marker.position.lat(),
                 'longitude': marker.position.lng()
             };
-
+            points.push(point)
         }
         return points;
     };
@@ -137,15 +138,16 @@ var GoogleMap = function (options) {
     };
 
     var addPolygon = function (points, key) {
-        key = '';
 
-        for (var index in points) {
-            var point = points[index];
-            points[index] = new google.maps.LatLng(points[index]['latitude'], points[index]['longitude']);
-            key = key + points[index]['latitude'] + '-' + points[index]['longitude'];
+        if (!key) {
+            key = guid();
         }
 
-        var polygan = new google.maps.Polygon({
+        for (var index in points) {
+            points[index] = new google.maps.LatLng(points[index]['latitude'], points[index]['longitude']);
+        }
+
+        var polygon = new google.maps.Polygon({
             path: points,
             strokeColor: "#0000FF",
             strokeOpacity: 0.8,
@@ -153,19 +155,50 @@ var GoogleMap = function (options) {
             fillColor: "#0000FF",
             fillOpacity: 0.4
         });
-        polygan.setMap(map);
-        polygans[key] = polygans;
+        polygon.setMap(map);
+        polygons[key] = polygon;
     };
 
-    var clearPolygans = function () {
-        for (var key in polygans) {
-            polygans[key].setMap(null);
+    var clearPolygons = function () {
+        for (var key in polygons) {
+            polygons[key].setMap(null);
         }
-        polygans = {};
+        polygons = {};
     };
 
-    var getPolygansCount = function () {
-        return Object.keys(polygans).length;
+    var getPolygonsCount = function () {
+        return Object.keys(polygons).length;
+    };
+
+    var addPolyline = function (points, key) {
+
+        if (!key) {
+            key = guid();
+        }
+
+        for (var index in points) {
+            points[index] = new google.maps.LatLng(points[index]['latitude'], points[index]['longitude']);
+        }
+
+        var polyline = new google.maps.Polyline({
+            path: points,
+            strokeColor: "#0000FF",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+        });
+        polyline.setMap(map);
+        polylines[key] = polyline;
+    };
+
+    var clearPolylines = function () {
+        for (var key in polylines) {
+            polylines[key].setMap(null);
+        }
+        polylines = {};
+    };
+
+    var getPolylinesCount = function () {
+        return Object.keys(polylines).length;
     };
 
     var setMapCenter = function (latitude, longitude) {
@@ -207,10 +240,10 @@ var GoogleMap = function (options) {
 
     var guid = function () {
         return guidHelperV4() + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + '-' + guidHelperV4() + guidHelperV4() + guidHelperV4();
-    }
+    };
     var guidHelperV4 = function () {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
+    };
 
     // public function
 
@@ -226,6 +259,11 @@ var GoogleMap = function (options) {
     this.getMarkersCount = getMarkersCount;
     this.addInfoWindow = addInfoWindow;
     this.addPolygon = addPolygon;
+    this.clearPolygans = clearPolygons;
+    this.getPolygansCount = getPolygonsCount;
+    this.addPolyline = addPolyline;
+    this.clearPolylines = clearPolylines;
+    this.getPolylinesCount = getPolylinesCount;
 
     init();
 };

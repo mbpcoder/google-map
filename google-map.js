@@ -58,8 +58,6 @@ var GoogleMap = function (options) {
                 });
             }
 
-            console.log(onMapZoomChange)
-
             if (onMapZoomChange) {
                 google.maps.event.addListener(map, 'zoom_changed', function () {
                     onMapZoomChange(map, map.getZoom());

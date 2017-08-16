@@ -26,19 +26,26 @@
         onMapClick: function (map, event, point) {
             googleMap.clearMarkers();
             var marker = googleMap.addMarker(point.latitude, point.longitude);
+            console.log(marker);
             googleMap.addInfoWindow(marker, 'Hello<br/>New</br>Marker');
             console.log(point)
         },
         onMarkerClick: function (map, event, marker, point) {
             console.log(point)
+        },
+        onMapZoomChange: function (map, zoom) {
+            console.log(zoom)
         }
     });
+
+
+
     // default marker
     var marker = googleMap.addMarker(36.318577999999995, 59.58842000000004);
     googleMap.addInfoWindow(marker, 'Hello<br/>Default<br/>Marker');
 
     // set map zoom dynamically
-    // googleMap.setMapZoom(15);
+     googleMap.setZoom(14);
 
 
 </script>

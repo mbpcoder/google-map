@@ -21,6 +21,7 @@ var GoogleMap = function (options) {
     var scrollWheelZoom = (options.scrollWheelZoom == undefined) ? true : options.scrollWheelZoom;
     var markerIcon = options.markerIcon || undefined;
     var onMapClick = options.onMapClick || undefined;
+    var onMapZoomChange = options.onMapZoomChange || undefined;
     var onMarkerClick = options.onMarkerClick || undefined;
 
     // private variables
@@ -28,6 +29,7 @@ var GoogleMap = function (options) {
     var markers = {};
     var polygons = {};
     var polylines = {};
+
     // private functions
 
     // initial the map
@@ -55,6 +57,15 @@ var GoogleMap = function (options) {
                     onMapClick(map, event, point);
                 });
             }
+
+            console.log(onMapZoomChange)
+
+            if (onMapZoomChange) {
+                google.maps.event.addListener(map, 'zoom_changed', function () {
+                    onMapZoomChange(map, map.getZoom());
+                });
+            }
+
         } else {
             console.log('google map is undefined');
             if (containerElement.classList.length == 0) {
@@ -63,6 +74,15 @@ var GoogleMap = function (options) {
                 containerElement.className = containerElement.className + ' offline';
             }
         }
+    };
+
+    var getZoom = function () {
+        return map.getZoom();
+    };
+
+    var setZoom = function (value) {
+        zoom = value;
+        map.setZoom(zoom);
     };
 
     var addMarker = function (latitude, longitude, key, title, icon) {
@@ -138,7 +158,6 @@ var GoogleMap = function (options) {
     };
 
     var addPolygon = function (points, key) {
-
         if (!key) {
             key = guid();
         }
@@ -157,6 +176,14 @@ var GoogleMap = function (options) {
         });
         polygon.setMap(map);
         polygons[key] = polygon;
+    };
+
+    var getPolygonArea = function (key) {
+        if (google.maps.geometry) {
+            return google.maps.geometry.spherical.computeArea(polygons[key].getPath());
+        }
+        console.log('google map geometry library not included');
+        return undefined;
     };
 
     var clearPolygons = function () {
@@ -217,11 +244,6 @@ var GoogleMap = function (options) {
         return center;
     };
 
-    var setMapZoom = function (value) {
-        zoom = value;
-        map.setZoom(zoom);
-    };
-
     var refresh = function () {
         //refresh map
     };
@@ -251,16 +273,22 @@ var GoogleMap = function (options) {
     this.getCurrentMapCenter = getCurrentMapCenter;
     this.refresh = refresh;
     this.resize = resize;
-    this.setMapZoom = setMapZoom;
+    this.getZoom = getZoom;
+    this.setZoom = setZoom;
+
     this.addMarker = addMarker;
     this.clearMarkers = clearMarkers;
     this.getMarkers = getMarkers;
     this.getMarkersPoint = getMarkersPoint;
     this.getMarkersCount = getMarkersCount;
+
     this.addInfoWindow = addInfoWindow;
+
     this.addPolygon = addPolygon;
     this.clearPolygans = clearPolygons;
-    this.getPolygansCount = getPolygonsCount;
+    this.getPolygonsCount = getPolygonsCount;
+    this.getPolygonArea = getPolygonArea;
+
     this.addPolyline = addPolyline;
     this.clearPolylines = clearPolylines;
     this.getPolylinesCount = getPolylinesCount;

@@ -15,14 +15,24 @@
 </head>
 <body>
 
-<div id="mapContainer"></div>
+<div id="mapContainer">
+
+</div>
+
+<div id="mapDetail">
+    <span>Map Zoom: <span id="mapZoom"></span></span> &nbsp; &nbsp;
+    <span>Top Right Latitude: <span id="topRightLatitude"></span></span> &nbsp; &nbsp;
+    <span>Top Right Longitude: <span id="topRightLongitude"></span></span> &nbsp; &nbsp;
+    <span>Bottom Left Latitude: <span id="bottomLeftLatitude"></span></span> &nbsp; &nbsp;
+    <span>Bottom Left Longitude: <span id="bottomLeftLongitude"></span></span> &nbsp; &nbsp;
+</div>
 
 <script>
     var googleMap = new GoogleMap({
         containerElement: document.getElementById('mapContainer'),
         markerIcon: 'marker.png',
         zoom: 14,
-        totalMarker: 1,
+        totalMarker: 3,
         onMapClick: function (map, event, point) {
             googleMap.clearMarkers();
             var marker = googleMap.addMarker(point.latitude, point.longitude);
@@ -34,10 +44,21 @@
             console.log(point)
         },
         onMapZoomChange: function (map, zoom) {
-            console.log(zoom)
+            var zoomElement = document.getElementById('mapZoom');
+            zoomElement.innerText = zoom;
+        },
+        onMapIdle: function (map) {
+            var bounds = googleMap.getBounds();
+
+            document.getElementById('topRightLatitude').innerText = bounds.topRight.latitude;
+            document.getElementById('topRightLongitude').innerText = bounds.topRight.longitude;
+            document.getElementById('bottomLeftLatitude').innerText = bounds.bottomLeft.latitude;
+            document.getElementById('bottomLeftLongitude').innerText = bounds.bottomLeft.longitude;
+
+            googleMap.addMarker(bounds.topRight.latitude, bounds.topRight.longitude);
+            googleMap.addMarker(bounds.bottomLeft.latitude, bounds.bottomLeft.longitude);
         }
     });
-
 
 
     // default marker
@@ -45,7 +66,7 @@
     googleMap.addInfoWindow(marker, 'Hello<br/>Default<br/>Marker');
 
     // set map zoom dynamically
-     googleMap.setZoom(14);
+    googleMap.setZoom(14);
 
 
 </script>

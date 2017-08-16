@@ -23,6 +23,7 @@ var GoogleMap = function (options) {
     var onMapClick = options.onMapClick || undefined;
     var onMapZoomChange = options.onMapZoomChange || undefined;
     var onMarkerClick = options.onMarkerClick || undefined;
+    var onMapIdle = options.onMapIdle || undefined;
 
     // private variables
     var map = undefined;
@@ -64,6 +65,12 @@ var GoogleMap = function (options) {
                 });
             }
 
+            if (onMapIdle) {
+                google.maps.event.addListener(map, 'idle', function () {
+                    onMapIdle(map);
+                });
+            }
+
         } else {
             console.log('google map is undefined');
             if (containerElement.classList.length == 0) {
@@ -81,6 +88,28 @@ var GoogleMap = function (options) {
     var setZoom = function (value) {
         zoom = value;
         map.setZoom(zoom);
+    };
+
+    var getBounds = function () {
+        var mapBounds = map.getBounds();
+
+        console.log(map.getBounds());
+
+        var northEast = mapBounds.getNorthEast();
+        var southWest = mapBounds.getSouthWest();
+
+        var bounds = {
+            topRight: {
+                'latitude': northEast.lat(),
+                'longitude': northEast.lng(),
+            },
+            bottomLeft: {
+                'latitude': southWest.lat(),
+                'longitude': southWest.lng(),
+            }
+        };
+
+        return bounds;
     };
 
     var addMarker = function (latitude, longitude, key, title, icon) {
@@ -273,6 +302,7 @@ var GoogleMap = function (options) {
     this.resize = resize;
     this.getZoom = getZoom;
     this.setZoom = setZoom;
+    this.getBounds = getBounds;
 
     this.addMarker = addMarker;
     this.clearMarkers = clearMarkers;

@@ -71,6 +71,12 @@ var GoogleMap = function (options) {
                 });
             }
 
+            if (onMapTilesLoaded) {
+                google.maps.event.addListener(map, 'tilesloaded', function (event) {
+                    onMapTilesLoaded(map, event);
+                });
+            }
+
         } else {
             console.log('google map is undefined');
             if (containerElement.classList.length == 0) {
@@ -92,15 +98,19 @@ var GoogleMap = function (options) {
 
     var getBounds = function () {
         var mapBounds = map.getBounds();
-
-        console.log(map.getBounds());
-
         var northEast = mapBounds.getNorthEast();
         var southWest = mapBounds.getSouthWest();
-
         var bounds = {
             topRight: {
                 'latitude': northEast.lat(),
+                'longitude': northEast.lng(),
+            },
+            topLeft: {
+                'latitude': northEast.lat(),
+                'longitude': southWest.lng(),
+            },
+            bottomRight: {
+                'latitude': southWest.lat(),
                 'longitude': northEast.lng(),
             },
             bottomLeft: {
@@ -132,13 +142,14 @@ var GoogleMap = function (options) {
                 option.icon = markerIcon;
             }
             var marker = new google.maps.Marker(option);
+            marker.key = key;
             if (onMarkerClick) {
                 google.maps.event.addListener(marker, 'click', function (event) {
                     var point = {
                         'latitude': event.latLng.lat(),
                         'longitude': event.latLng.lng(),
                     };
-                    onMarkerClick(map, marker, event, point)
+                    onMarkerClick(map, event, this, point)
                 });
             }
             markers[key] = marker;
@@ -322,4 +333,14 @@ var GoogleMap = function (options) {
     this.getPolylinesCount = getPolylinesCount;
 
     init();
+};
+
+// static function
+
+//  have to enable libraries=geometry for google map
+GoogleMap.distance = function (pointA, PointB) {
+    var latLngA = new google.maps.LatLng(pointA.latitude, pointA.longitude);
+    var latLngB = new google.maps.LatLng(PointB.latitude, PointB.longitude);
+    var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, latLngB);
+    return distance; //In metres
 };
